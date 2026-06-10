@@ -22,10 +22,17 @@ const run = async () => {
         await client.connect();
         const db = await client.db(process.env.DB_NAME);
         const jobsCollection = await db.collection(process.env.JOBS_COLLECTION);
+        const applicationsCollection = await db.collection(process.env.APPLICATIONS_COLLECTION);
 
         app.get('/jobs', async (req, res) => {
             const cursor = jobsCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.post('/api/jobs/applications', async (req, res) => {
+            const newApplication = req.body;
+            const result = await applicationsCollection.insertOne(newApplication);
             res.send(result);
         });
 
