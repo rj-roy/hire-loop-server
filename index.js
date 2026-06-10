@@ -36,6 +36,12 @@ const run = async () => {
             res.send(result);
         });
 
+        app.get('/applications', async (req, res)=>{
+            const cursor = applicationsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
     } finally {
         // await client.close();
     }
