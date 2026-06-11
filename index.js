@@ -30,6 +30,13 @@ const run = async () => {
             res.send(result);
         });
 
+        app.get('/jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await jobsCollection.findOne(query);
+            res.send(result);
+        });
+
         app.post('/api/jobs/applications', async (req, res) => {
             const newApplication = req.body;
             const result = await applicationsCollection.insertOne(newApplication);
