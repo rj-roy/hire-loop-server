@@ -23,6 +23,8 @@ const run = async () => {
         const db = await client.db(process.env.DB_NAME);
         const jobsCollection = await db.collection(process.env.JOBS_COLLECTION);
         const applicationsCollection = await db.collection(process.env.APPLICATIONS_COLLECTION);
+        const subscriptionsCollection = await db.collection(process.env.SUBSCRIPTIONS_COLLECTION);
+        const usersCollection = await db.collection(process.env.USERS_COLLECTION);
 
         app.get('/jobs', async (req, res) => {
             const cursor = jobsCollection.find();
@@ -43,10 +45,31 @@ const run = async () => {
             res.send(result);
         });
 
-        app.get('/applications', async (req, res)=>{
+        app.get('/applications', async (req, res) => {
             const cursor = applicationsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        });
+
+        app.post('/api/subscriptions', async (req, res) => {
+            const subscription = req.body;
+            const subInfo = {
+                ...subscription,
+                createdAt: new Date(),
+            };
+            await subscriptionsCollection.insertOne(subInfo);
+
+            const filter = { 
+                _id: new ObjectId(subscription.userId) 
+            };
+            const updateDocument = {
+                $set: {
+                    plan: subscription.planId,
+                },
+            };
+
+            const updateResult = await usersCollection.updateOne(filter, updateDocument);
+            res.send(updateResult)
         });
 
     } finally {
