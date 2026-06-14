@@ -25,6 +25,7 @@ const run = async () => {
         const applicationsCollection = await db.collection(process.env.APPLICATIONS_COLLECTION);
         const subscriptionsCollection = await db.collection(process.env.SUBSCRIPTIONS_COLLECTION);
         const usersCollection = await db.collection(process.env.USERS_COLLECTION);
+        const planCollection = await db.collection(process.env.PLAN_COLLECTION);
 
         app.get('/jobs', async (req, res) => {
             const cursor = jobsCollection.find();
@@ -59,8 +60,8 @@ const run = async () => {
             };
             await subscriptionsCollection.insertOne(subInfo);
 
-            const filter = { 
-                _id: new ObjectId(subscription.userId) 
+            const filter = {
+                _id: new ObjectId(subscription.userId)
             };
             const updateDocument = {
                 $set: {
@@ -70,6 +71,15 @@ const run = async () => {
 
             const updateResult = await usersCollection.updateOne(filter, updateDocument);
             res.send(updateResult)
+        });
+
+        app.get('/api/plans', async (req, res) => {
+            const query = {}
+            if (req.query.plan_id) {
+                query.planId = req.query.plan_id
+            }
+            const plan = await planCollection.findOne(query);
+            res.send(plan)
         });
 
     } finally {
